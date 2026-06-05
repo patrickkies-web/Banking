@@ -1,0 +1,269 @@
+.wrap {
+  padding-bottom: 24px;
+}
+
+.sectionLabel {
+  font-size: 12.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--text-secondary);
+  padding: 12px var(--page-x) 6px;
+}
+
+/* Summary row */
+.summaryCard {
+  display: flex;
+  background: var(--surface);
+  border-radius: var(--radius);
+  margin: 0 var(--page-x) 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.stat {
+  flex: 1;
+  padding: 14px 8px;
+  text-align: center;
+}
+
+.statLabel {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--text-secondary);
+  margin-bottom: 5px;
+}
+
+.statValue {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -.02em;
+  color: var(--text-primary);
+}
+
+.divider {
+  width: .5px;
+  background: var(--sep);
+  align-self: stretch;
+  margin: 12px 0;
+}
+
+/* List card */
+.listCard {
+  background: var(--surface);
+  border-radius: var(--radius);
+  margin: 0 var(--page-x) 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Category rows */
+.catRow {
+  padding: 11px 16px;
+  position: relative;
+}
+
+.catRow:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 16px;
+  right: 0;
+  bottom: 0;
+  height: .5px;
+  background: var(--sep);
+}
+
+.catMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 7px;
+}
+
+.catDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.catName {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.catCount {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  font-weight: 500;
+}
+
+.catTotal {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.barTrack {
+  height: 5px;
+  background: var(--surface-3);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width .4s cubic-bezier(.32,.72,0,1);
+  min-width: 4px;
+}
+
+/* Recurring rows */
+.recRow {
+  display: flex;
+  align-items: center;
+  padding: 13px 16px;
+  position: relative;
+}
+
+.recRow:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 16px;
+  right: 0;
+  bottom: 0;
+  height: .5px;
+  background: var(--sep);
+}
+
+.recBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.recPayee {
+  font-size: 15.5px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recFreq {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.recRight {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.recAmount {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.recMonthly {
+  display: block;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+/* Forecast */
+.forecastBlock {
+  margin-bottom: 4px;
+}
+
+.forecastHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px var(--page-x) 4px;
+}
+
+.forecastMonth {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.forecastTotal {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.forecastRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 16px;
+  position: relative;
+}
+
+.forecastRowSep::after {
+  content: '';
+  position: absolute;
+  left: 16px;
+  right: 0;
+  bottom: 0;
+  height: .5px;
+  background: var(--sep);
+}
+
+.forecastDay {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  width: 26px;
+  flex-shrink: 0;
+}
+
+.forecastPayee {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.forecastAmt {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+/* Empty */
+.empty {
+  padding: 60px var(--page-x) 20px;
+  text-align: center;
+}
+
+.emptyTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.emptySub {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}

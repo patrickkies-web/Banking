@@ -1,0 +1,72 @@
+.card {
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  margin: 0 var(--page-x) 16px;
+}
+
+.summary {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 14px;
+  font-weight: 500;
+}
+
+.blue {
+  color: var(--blue);
+  font-weight: 700;
+}
+
+.track {
+  display: flex;
+  gap: 4px;
+  align-items: flex-end;
+  height: 68px;
+}
+
+.col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.bar {
+  width: 100%;
+  border-radius: 5px 5px 0 0;
+  background: var(--surface-3);
+  height: 14%;
+  min-height: 5px;
+  position: relative;
+  transition: height .35s cubic-bezier(.32,.72,0,1);
+}
+
+.bar.hit {
+  background: linear-gradient(180deg, #4da3ff, var(--blue));
+  height: 100%;
+}
+
+.barAmt {
+  position: absolute;
+  top: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 8.5px;
+  color: var(--blue);
+  font-weight: 700;
+  white-space: nowrap;
+  font-family: monospace;
+}
+
+.label {
+  font-size: 9.5px;
+  color: var(--text-tertiary);
+  font-weight: 600;
+}
+
+.labelNow {
+  color: var(--orange);
+}

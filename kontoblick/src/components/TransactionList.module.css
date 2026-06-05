@@ -1,0 +1,145 @@
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  margin: 0 var(--page-x);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  position: relative;
+  cursor: pointer;
+  transition: background .12s;
+}
+
+.row:active { background: var(--surface-2); }
+
+.rowSep::after {
+  content: '';
+  position: absolute;
+  left: 60px;
+  right: 0;
+  bottom: 0;
+  height: .5px;
+  background: var(--sep);
+}
+
+/* Avatar */
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+/* Body */
+.body {
+  flex: 1;
+  min-width: 0;
+}
+
+.payee {
+  font-size: 15.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.purpose {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 3px;
+}
+
+.date {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  font-weight: 500;
+}
+
+.recurTag {
+  font-size: 11px;
+  color: var(--blue);
+  font-weight: 700;
+  background: rgba(0,122,255,.1);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+/* Right side */
+.right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.amount {
+  font-size: 15.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.amountPos { color: var(--positive); }
+
+.catChip {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 5px;
+  white-space: nowrap;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Empty state */
+.empty {
+  padding: 60px var(--page-x) 20px;
+  text-align: center;
+}
+
+.emptyIcon {
+  font-size: 40px;
+  margin-bottom: 12px;
+  opacity: .3;
+}
+
+.emptyTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.emptySub {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  max-width: 260px;
+  margin: 0 auto;
+}
