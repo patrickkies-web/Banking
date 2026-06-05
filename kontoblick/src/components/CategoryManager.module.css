@@ -114,6 +114,7 @@
   place-items: center;
   flex-shrink: 0;
   line-height: 1;
+  border: none;
   transition: opacity .12s;
 }
 .addSubBtn:active { opacity: .7; }
@@ -125,6 +126,8 @@
   transition: color .12s;
   flex-shrink: 0;
   padding: 4px;
+  background: none;
+  border: none;
 }
 .del:active { color: var(--danger); }
 
@@ -188,6 +191,7 @@
   color: var(--text-primary);
   outline: none;
   margin-left: 18px;
+  font-family: inherit;
 }
 .addInput:focus { background: var(--surface-3); }
 
@@ -203,6 +207,7 @@
   place-items: center;
   flex-shrink: 0;
   line-height: 1;
+  border: none;
   transition: opacity .12s;
 }
 .addBtn:active { opacity: .7; }
@@ -212,6 +217,8 @@
   font-weight: 700;
   color: var(--text-tertiary);
   padding: 4px;
+  background: none;
+  border: none;
 }
 .cancelSmall:active { color: var(--danger); }
 

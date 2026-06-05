@@ -12,7 +12,6 @@ import styles from './App.module.css'
 
 const STORAGE_KEY = 'kontoblick_v1'
 
-// special: 'income' | 'transfer' | 'discretionary' → Dashboard treats them separately
 const DEFAULT_CATS = [
   // Main categories
   { id: 'mc_kinder',   name: 'Kinder',                  color: '#ff9500', parentId: null },
@@ -32,6 +31,7 @@ const DEFAULT_CATS = [
   { id: 'sc_k_schule', name: 'Schule & Kita',            color: '#ff9500', parentId: 'mc_kinder' },
   // Haushalt
   { id: 'sc_h_lebens', name: 'Lebensmittel',             color: '#34c759', parentId: 'mc_haush' },
+  { id: 'sc_h_drog',   name: 'Drogerie',                 color: '#34c759', parentId: 'mc_haush' },
   { id: 'sc_h_reinig', name: 'Reinigung & Haushalt',     color: '#34c759', parentId: 'mc_haush' },
   { id: 'sc_h_einr',   name: 'Möbel & Einrichtung',      color: '#34c759', parentId: 'mc_haush' },
   // Fixkosten
@@ -80,7 +80,12 @@ function loadStorage() {
     if (!raw) return null
     const d = JSON.parse(raw)
     if (!d?.txs?.length) return null
-    return { txs: migrateTxs(d.txs), cats: migrateCats(d.cats?.length ? d.cats : DEFAULT_CATS), fileName: d.fileName || '' }
+    return {
+      txs: migrateTxs(d.txs),
+      cats: migrateCats(d.cats?.length ? d.cats : DEFAULT_CATS),
+      labels: d.labels ?? [],
+      fileName: d.fileName || '',
+    }
   } catch { return null }
 }
 
@@ -88,23 +93,22 @@ const _stored = loadStorage()
 
 export default function App() {
   const [txs,      setTxs]      = useState(_stored?.txs      ?? [])
-  const [cats,     setCats]     = useState(_stored?.cats ?? DEFAULT_CATS)
+  const [cats,     setCats]     = useState(_stored?.cats      ?? DEFAULT_CATS)
+  const [labels,   setLabels]   = useState(_stored?.labels    ?? [])
   const [tab,      setTab]      = useState('inbox')
   const [filter,   setFilter]   = useState('open')
   const [mgr,      setMgr]      = useState(false)
   const [toast,    setToast]    = useState(_stored ? 'Projekt wiederhergestellt' : '')
-  const [fileName, setFileName] = useState(_stored?.fileName ?? '')
+  const [fileName, setFileName] = useState(_stored?.fileName  ?? '')
   const projRef = useRef(null)
   const toastTimer = useRef(null)
 
-  // Auto-save to localStorage on every change
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ txs, cats, fileName }))
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ txs, cats, labels, fileName }))
     } catch {}
-  }, [txs, cats, fileName])
+  }, [txs, cats, labels, fileName])
 
-  // Clear initial restore toast
   useEffect(() => {
     if (!_stored) return
     toastTimer.current = setTimeout(() => setToast(''), 2400)
@@ -116,6 +120,7 @@ export default function App() {
     localStorage.removeItem(STORAGE_KEY)
     setTxs([])
     setCats([])
+    setLabels([])
     setFileName('')
     setTab('inbox')
     setFilter('open')
@@ -143,7 +148,7 @@ export default function App() {
 
   function saveProject() {
     const blob = new Blob(
-      [JSON.stringify({ version: 2, fileName, txs, cats }, null, 2)],
+      [JSON.stringify({ version: 3, fileName, txs, cats, labels }, null, 2)],
       { type: 'application/json' }
     )
     const a = document.createElement('a')
@@ -160,6 +165,7 @@ export default function App() {
         const d = JSON.parse(e.target.result)
         setTxs(migrateTxs(d.txs))
         setCats(d.cats || [])
+        setLabels(d.labels ?? [])
         setFileName(d.fileName || '')
         setTab('inbox')
         flash('Projekt geladen')
@@ -169,23 +175,27 @@ export default function App() {
   }
 
   function exportCSV() {
-    const catById = Object.fromEntries(cats.map(c => [c.id, c]))
-    const head = ['Datum','Typ','Empfänger','Betrag','Zweck','Kategorie','Rhythmus']
+    const catById   = Object.fromEntries(cats.map(c => [c.id, c]))
+    const labelById = Object.fromEntries(labels.map(l => [l.id, l]))
+    const head = ['Datum','Typ','Empfänger','Betrag','Zweck','Kategorie','Funktion','Zeitraum','Rhythmus']
     const rows = txs.map(t => {
-      const catNames = (t.categoryIds ?? []).map(id => catById[id]?.name).filter(Boolean).join(', ')
+      const catNames   = (t.categoryIds ?? []).map(id => catById[id]?.name).filter(Boolean).join(', ')
+      const labelName  = t.labelId ? (labelById[t.labelId]?.name ?? '') : ''
       const r = t.recurrence
       return [
         t.date, t.type, t.payee,
         String(t.amount).replace('.', ','),
         t.purpose,
         catNames,
+        labelName,
+        t.period ?? '',
         r ? r.freq : '',
       ].map(v => {
         v = v == null ? '' : String(v)
         return /[";]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v
       }).join(';')
     })
-    const csv = '\ufeff' + [head.join(';'), ...rows].join('\r\n')
+    const csv = '﻿' + [head.join(';'), ...rows].join('\r\n')
     const a = document.createElement('a')
     a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }))
     a.download = 'kategorisiert.csv'
@@ -194,7 +204,6 @@ export default function App() {
   }
 
   const openCount = txs.filter(t => !(t.categoryIds ?? []).length).length
-  const doneCount = txs.filter(t =>  !!(t.categoryIds ?? []).length).length
 
   if (!txs.length) {
     return (
@@ -233,16 +242,16 @@ export default function App() {
           ? <TransactionList
               txs={txs} setTxs={setTxs}
               cats={cats}
+              labels={labels} setLabels={setLabels}
               filter={filter}
               openMgr={() => setMgr(true)}
             />
           : tab === 'forecast'
           ? <Forecast txs={txs} />
-          : <Dashboard txs={txs} cats={cats} />
+          : <Dashboard txs={txs} cats={cats} labels={labels} />
         }
       </div>
 
-      {/* Floating action buttons */}
       <div className={styles.fabs}>
         <button className={`${styles.fab} ${styles.fabGray}`} onClick={saveProject}>💾 Speichern</button>
         <button className={`${styles.fab} ${styles.fabBlue}`} onClick={exportCSV}>CSV exportieren</button>
@@ -259,7 +268,6 @@ export default function App() {
 
       {toast && <div className={`${styles.toast} ${toast ? styles.toastShow : ''}`}>{toast}</div>}
 
-      {/* Hidden project file input */}
       <input
         ref={projRef}
         type="file"

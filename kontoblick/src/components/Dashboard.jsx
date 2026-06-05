@@ -3,7 +3,7 @@ import { formatCurrency, formatCurrencySigned, formatPeriod, FREQ_LABEL, MONTHS_
 import { monthlyEquivalent, occurrencesInRange } from '../lib/recurrence.js';
 import styles from './Dashboard.module.css';
 
-export default function Dashboard({ txs, cats }) {
+export default function Dashboard({ txs, cats, labels }) {
   const [activePeriod, setActivePeriod] = useState('all');
 
   const specialIds = useMemo(() =>
@@ -11,13 +11,11 @@ export default function Dashboard({ txs, cats }) {
     [cats]
   );
 
-  // Unique sorted periods assigned to any tx
   const periods = useMemo(() => {
     const set = new Set(txs.map(t => t.period).filter(Boolean));
     return [...set].sort();
   }, [txs]);
 
-  // Historical view, filtered by selected period
   const viewTxs = useMemo(() =>
     activePeriod === 'all' ? txs : txs.filter(t => t.period === activePeriod),
     [txs, activePeriod]
@@ -57,7 +55,6 @@ export default function Dashboard({ txs, cats }) {
 
   const maxAbs = breakdown.reduce((m, g) => Math.max(m, Math.abs(g.total)), 0) || 1;
 
-  // Recurring always uses all txs (future-oriented)
   const recurring = useMemo(() => txs.filter(t => t.recurrence), [txs]);
 
   const forecast = useMemo(() => {
@@ -81,6 +78,17 @@ export default function Dashboard({ txs, cats }) {
       return { label, items, total };
     }).filter(m => m.items.length > 0);
   }, [recurring]);
+
+  const fixedLabels = useMemo(() => (labels ?? []).filter(l => l.isFixedCost), [labels]);
+
+  const matrixCols = useMemo(() => {
+    const set = new Set(txs.map(t => t.period).filter(Boolean));
+    return [...set].sort();
+  }, [txs]);
+
+  function getPaid(labelId, period) {
+    return txs.some(t => t.labelId === labelId && t.period === period);
+  }
 
   if (!txs.length) {
     return (
@@ -140,6 +148,44 @@ export default function Dashboard({ txs, cats }) {
           {breakdown.filter(g => !g.special).map(g => (
             <GroupCard key={g.mc.id} group={g} maxAbs={maxAbs} />
           ))}
+        </>
+      )}
+
+      {fixedLabels.length > 0 && matrixCols.length > 0 && (
+        <>
+          <p className={styles.sectionLabel}>Fixkosten-Übersicht</p>
+          <div className={styles.matrixWrap}>
+            <table className={styles.matrix}>
+              <thead>
+                <tr className={styles.matrixHeaderRow}>
+                  <th className={styles.matrixCorner} />
+                  {matrixCols.map(col => (
+                    <th key={col} className={styles.matrixColHeader}>
+                      {formatPeriod(col)}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {fixedLabels.map(label => (
+                  <tr key={label.id} className={styles.matrixDataRow}>
+                    <td className={styles.matrixLabelCell}>{label.name}</td>
+                    {matrixCols.map(col => {
+                      const paid = getPaid(label.id, col);
+                      return (
+                        <td
+                          key={col}
+                          className={`${styles.matrixCell} ${paid ? styles.matrixPaid : styles.matrixUnpaid}`}
+                        >
+                          {paid ? '✓' : '✗'}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </>
       )}
 

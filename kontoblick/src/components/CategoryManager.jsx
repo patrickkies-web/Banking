@@ -4,7 +4,7 @@ import styles from './CategoryManager.module.css';
 
 export default function CategoryManager({ open, cats, setCats, txs, setTxs, onClose }) {
   const [visible, setVisible] = useState(false);
-  const [adding, setAdding] = useState(null); // { parentId: string|null }
+  const [adding, setAdding] = useState(null);
   const [newName, setNewName] = useState('');
   const [newColor, setNewColor] = useState(CAT_COLORS[0]);
   const addInputRef = useRef(null);
@@ -83,7 +83,6 @@ export default function CategoryManager({ open, cats, setCats, txs, setTxs, onCl
           const count = txCount(mc.id);
           return (
             <div key={mc.id} className={styles.mainGroup}>
-              {/* Main category row */}
               <div className={styles.mainRow}>
                 <button
                   className={styles.mainSwatch}
@@ -107,7 +106,6 @@ export default function CategoryManager({ open, cats, setCats, txs, setTxs, onCl
                 <button className={styles.del} onClick={() => remove(mc.id)}>✕</button>
               </div>
 
-              {/* Sub-category rows */}
               {subs.map(sc => (
                 <div key={sc.id} className={styles.subRow}>
                   <div className={styles.subLine} style={{ background: mc.color }} />
@@ -126,7 +124,6 @@ export default function CategoryManager({ open, cats, setCats, txs, setTxs, onCl
                 </div>
               ))}
 
-              {/* Inline add sub-cat form */}
               {adding?.parentId === mc.id && (
                 <div className={styles.subAddRow}>
                   <div className={styles.subLine} style={{ background: mc.color }} />
@@ -149,7 +146,6 @@ export default function CategoryManager({ open, cats, setCats, txs, setTxs, onCl
           );
         })}
 
-        {/* Add main category form */}
         {adding?.parentId === null ? (
           <div className={styles.mainAddBlock}>
             <div className={styles.addRow}>

@@ -71,7 +71,7 @@ function rowsToTransactions(rows) {
         payee:      cols.payee   >= 0 ? String(r[cols.payee]  ?? '').trim() : '',
         purpose:    cols.purpose >= 0 ? String(r[cols.purpose] ?? '').trim() : '',
         type:       cols.type    >= 0 ? String(r[cols.type]    ?? '').trim() : '',
-        categoryIds: [],
+        categoryId: null,
         recurrence: null,
       };
     })

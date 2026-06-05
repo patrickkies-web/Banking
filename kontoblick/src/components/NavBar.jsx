@@ -13,11 +13,12 @@ export default function NavBar({ title, subtitle, action, leftAction }) {
   return (
     <div className={`${styles.nav} ${scrolled ? styles.scrolled : ''}`}>
       <div className={styles.inner}>
-        {leftAction
-          ? <button className={styles.leftAction} onClick={leftAction.onPress}>{leftAction.label}</button>
-          : <div className={styles.smallTitle}>{title}</div>
-        }
-        {leftAction && <div className={styles.smallTitle}>{title}</div>}
+        {leftAction ? (
+          <button className={styles.leftAction} onClick={leftAction.onPress}>
+            {leftAction.label}
+          </button>
+        ) : <div />}
+        <div className={styles.smallTitle}>{title}</div>
         {action && (
           <button className={styles.action} onClick={action.onPress}>
             {action.label}
