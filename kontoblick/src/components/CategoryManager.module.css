@@ -11,9 +11,7 @@
   transition: opacity .3s;
 }
 
-.backdrop.show {
-  opacity: 1;
-}
+.backdrop.show { opacity: 1; }
 
 .sheet {
   background: var(--bg);
@@ -27,9 +25,7 @@
   padding-bottom: calc(24px + var(--safe-bottom));
 }
 
-.backdrop.show .sheet {
-  transform: translateY(0);
-}
+.backdrop.show .sheet { transform: translateY(0); }
 
 .handle {
   width: 36px;
@@ -43,7 +39,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px var(--page-x) 16px;
+  padding: 8px var(--page-x) 12px;
 }
 
 .title {
@@ -58,59 +54,42 @@
   color: var(--blue);
   transition: opacity .12s;
 }
-
 .done:active { opacity: .4; }
 
-.empty {
-  font-size: 14px;
-  color: var(--text-secondary);
-  padding: 0 var(--page-x) 16px;
-  line-height: 1.5;
-}
-
-.listCard {
+/* Main category group */
+.mainGroup {
   background: var(--surface);
   border-radius: var(--radius);
-  margin: 0 var(--page-x) 8px;
+  margin: 0 var(--page-x) 10px;
   overflow: hidden;
   box-shadow: var(--shadow-sm);
 }
 
-.row {
+.mainRow {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  position: relative;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: .5px solid var(--sep);
 }
 
-.row:not(:last-child)::after {
-  content: '';
-  position: absolute;
-  left: 48px;
-  right: 0;
-  bottom: 0;
-  height: .5px;
-  background: var(--sep);
-}
-
-.swatch {
-  width: 22px;
-  height: 22px;
-  border-radius: 7px;
+.mainSwatch {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
   flex-shrink: 0;
   cursor: pointer;
   transition: transform .12s;
+  border: none;
 }
+.mainSwatch:active { transform: scale(.88); }
 
-.swatch:hover { transform: scale(1.15); }
-
-.nameInput {
+.mainName {
   flex: 1;
   border: none;
   background: none;
-  font-size: 15.5px;
-  font-weight: 500;
+  font-size: 16px;
+  font-weight: 700;
   color: var(--text-primary);
   outline: none;
 }
@@ -118,59 +97,18 @@
 .count {
   font-size: 13px;
   color: var(--text-tertiary);
-  font-weight: 500;
+  font-weight: 600;
   min-width: 18px;
   text-align: right;
 }
 
-.del {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--red);
-  transition: opacity .12s;
-}
-
-.del:active { opacity: .5; }
-
-.sectionLabel {
-  font-size: 12.5px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: .05em;
-  color: var(--text-secondary);
-  padding: 12px var(--page-x) 6px;
-}
-
-.addRow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 11px 16px;
-  border-bottom: .5px solid var(--sep);
-}
-
-.addInput {
-  flex: 1;
-  background: var(--surface-2);
-  border: none;
-  border-radius: 9px;
-  padding: 9px 12px;
-  font-size: 15.5px;
-  color: var(--text-primary);
-  outline: none;
-}
-
-.addInput:focus {
-  background: var(--surface-3);
-}
-
-.addBtn {
-  width: 34px;
-  height: 34px;
+.addSubBtn {
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   background: var(--blue);
   color: #fff;
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 300;
   display: grid;
   place-items: center;
@@ -178,14 +116,131 @@
   line-height: 1;
   transition: opacity .12s;
 }
+.addSubBtn:active { opacity: .7; }
 
+.del {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  transition: color .12s;
+  flex-shrink: 0;
+  padding: 4px;
+}
+.del:active { color: var(--danger); }
+
+/* Sub-category row */
+.subRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px 10px 14px;
+  position: relative;
+  border-bottom: .5px solid var(--sep);
+}
+
+.subLine {
+  width: 3px;
+  height: 100%;
+  border-radius: 2px;
+  flex-shrink: 0;
+  opacity: .4;
+  position: absolute;
+  left: 20px;
+  top: 0;
+  bottom: 0;
+}
+
+.subDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-left: 18px;
+}
+
+.subName {
+  flex: 1;
+  border: none;
+  background: none;
+  font-size: 14.5px;
+  font-weight: 500;
+  color: var(--text-primary);
+  outline: none;
+}
+
+/* Add rows */
+.subAddRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-top: .5px solid var(--sep);
+  position: relative;
+}
+
+.addInput {
+  flex: 1;
+  background: var(--surface-2);
+  border: none;
+  border-radius: 9px;
+  padding: 8px 11px;
+  font-size: 14.5px;
+  color: var(--text-primary);
+  outline: none;
+  margin-left: 18px;
+}
+.addInput:focus { background: var(--surface-3); }
+
+.addBtn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--blue);
+  color: #fff;
+  font-size: 20px;
+  font-weight: 300;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  line-height: 1;
+  transition: opacity .12s;
+}
 .addBtn:active { opacity: .7; }
+
+.cancelSmall {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  padding: 4px;
+}
+.cancelSmall:active { color: var(--danger); }
+
+/* Main category add block */
+.mainAddBlock {
+  margin: 0 var(--page-x) 8px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.addRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border-bottom: .5px solid var(--sep);
+}
+
+.addRow .addInput {
+  margin-left: 0;
+}
 
 .swatches {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
-  padding: 12px 16px 14px;
+  padding: 12px 14px;
 }
 
 .dot {
@@ -195,8 +250,8 @@
   cursor: pointer;
   position: relative;
   transition: transform .12s;
+  flex-shrink: 0;
 }
-
 .dot:active { transform: scale(.88); }
 
 .dotActive::after {
@@ -209,3 +264,22 @@
   font-size: 14px;
   font-weight: 800;
 }
+
+/* New main category button */
+.newMainBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(100% - 2 * var(--page-x));
+  margin: 4px var(--page-x) 8px;
+  padding: 13px;
+  border-radius: var(--radius);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--blue);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  border: 1.5px dashed rgba(0,122,255,.35);
+  transition: opacity .12s;
+}
+.newMainBtn:active { opacity: .5; }

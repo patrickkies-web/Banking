@@ -80,37 +80,63 @@ export default function TxSheet({ tx, cats, onSave, onSaveAndNext, hasNext, navP
         )}
 
         <p className={styles.sectionLabel}>Kategorien</p>
-        {cats.length === 0 ? (
+        {cats.filter(c => !c.parentId).length === 0 ? (
           <div className={styles.catEmpty}>
             <button className={styles.newCatBtn} onClick={openMgr}>
               + Erste Kategorie anlegen
             </button>
           </div>
         ) : (
-          <div className={styles.catGrid}>
-            {cats.map(cat => {
-              const active = (local.categoryIds ?? []).includes(cat.id);
-              return (
-                <button
-                  key={cat.id}
-                  className={`${styles.catBtn} ${active ? styles.catActive : ''}`}
-                  style={active
-                    ? { background: cat.color, borderColor: cat.color }
-                    : { borderColor: cat.color + '50' }
-                  }
-                  onClick={() => toggleCat(cat.id)}
-                >
-                  <span
-                    className={styles.catDot}
-                    style={{ background: active ? '#fff' : cat.color }}
-                  />
-                  {cat.name}
+          <div className={styles.catSections}>
+            {cats
+              .filter(c => !c.parentId)
+              .sort((a, b) => a.name.localeCompare(b.name, 'de'))
+              .map(mc => {
+                const subs = cats
+                  .filter(c => c.parentId === mc.id)
+                  .sort((a, b) => a.name.localeCompare(b.name, 'de'));
+                const targets = subs.length > 0 ? subs : [mc];
+                const ids = local.categoryIds ?? [];
+                return (
+                  <div key={mc.id} className={styles.catGroup}>
+                    <div
+                      className={styles.catGroupLabel}
+                      style={{ color: mc.color }}
+                    >
+                      {mc.name}
+                    </div>
+                    <div className={styles.catChipRow}>
+                      {targets.map(cat => {
+                        const active = ids.includes(cat.id);
+                        return (
+                          <button
+                            key={cat.id}
+                            className={`${styles.catBtn} ${active ? styles.catActive : ''}`}
+                            style={active
+                              ? { background: cat.color, borderColor: cat.color }
+                              : { borderColor: cat.color + '50' }
+                            }
+                            onClick={() => toggleCat(cat.id)}
+                          >
+                            <span
+                              className={styles.catDot}
+                              style={{ background: active ? '#fff' : cat.color }}
+                            />
+                            {cat.name}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            <div className={styles.catGroup}>
+              <div className={styles.catChipRow}>
+                <button className={styles.addCatBtn} onClick={openMgr}>
+                  + Kategorie
                 </button>
-              );
-            })}
-            <button className={styles.addCatBtn} onClick={openMgr}>
-              + Kategorie
-            </button>
+              </div>
+            </div>
           </div>
         )}
 

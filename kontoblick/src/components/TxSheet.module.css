@@ -209,3 +209,29 @@
 }
 
 .newCatBtn:active { opacity: .5; }
+
+.catSections {
+  padding: 0 var(--page-x) 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.catGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.catGroupLabel {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.catChipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}

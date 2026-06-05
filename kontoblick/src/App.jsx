@@ -13,20 +13,54 @@ const STORAGE_KEY = 'kontoblick_v1'
 
 // special: 'income' | 'transfer' | 'discretionary' → Dashboard treats them separately
 const DEFAULT_CATS = [
-  { id: 'dc_auszahlung',  name: 'Auszahlung',           color: '#af52de', special: 'discretionary' },
-  { id: 'dc_einnahmen',   name: 'Einnahmen',            color: '#34c759', special: 'income' },
-  { id: 'dc_gesundheit',  name: 'Gesundheit',           color: '#ff3b30' },
-  { id: 'dc_kleidung',    name: 'Kleidung & Shopping',  color: '#ff6b35' },
-  { id: 'dc_lebens',      name: 'Lebensmittel',         color: '#30b0c7' },
-  { id: 'dc_reisen',      name: 'Reisen & Urlaub',      color: '#5856d6' },
-  { id: 'dc_restaurant',  name: 'Restaurant & Café',    color: '#ff2d55' },
-  { id: 'dc_sonstiges',   name: 'Sonstiges',            color: '#aeaeb2' },
-  { id: 'dc_streaming',   name: 'Streaming & Abos',     color: '#ffcc00' },
-  { id: 'dc_telefon',     name: 'Telefon & Internet',   color: '#5ac8fa' },
-  { id: 'dc_transport',   name: 'Transport',            color: '#ff9500' },
-  { id: 'dc_uebertrag',   name: 'Übertrag',             color: '#636366', special: 'transfer' },
-  { id: 'dc_versich',     name: 'Versicherungen',       color: '#af52de' },
-  { id: 'dc_wohnen',      name: 'Wohnen & Nebenkosten', color: '#007aff' },
+  // Main categories
+  { id: 'mc_kinder',   name: 'Kinder',                  color: '#ff9500', parentId: null },
+  { id: 'mc_haush',    name: 'Haushalt',                 color: '#34c759', parentId: null },
+  { id: 'mc_fixk',     name: 'Fixkosten & Nebenkosten',  color: '#5856d6', parentId: null },
+  { id: 'mc_vertr',    name: 'Verträge',                 color: '#007aff', parentId: null },
+  { id: 'mc_mobil',    name: 'Mobilität',                color: '#ff6b35', parentId: null },
+  { id: 'mc_gesund',   name: 'Gesundheit',               color: '#ff3b30', parentId: null },
+  { id: 'mc_freizeit', name: 'Freizeit & Shopping',      color: '#ff2d55', parentId: null },
+  { id: 'mc_einn',     name: 'Einnahmen',                color: '#34c759', parentId: null, special: 'income' },
+  { id: 'mc_uebtr',    name: 'Überträge',                color: '#636366', parentId: null, special: 'transfer' },
+  { id: 'mc_sonst',    name: 'Sonstiges',                color: '#aeaeb2', parentId: null },
+  // Kinder
+  { id: 'sc_k_kleid',  name: 'Kleidung Kinder',          color: '#ff9500', parentId: 'mc_kinder' },
+  { id: 'sc_k_essen',  name: 'Essen Kinder',             color: '#ff9500', parentId: 'mc_kinder' },
+  { id: 'sc_k_spiel',  name: 'Spielzeug & Freizeit',     color: '#ff9500', parentId: 'mc_kinder' },
+  { id: 'sc_k_schule', name: 'Schule & Kita',            color: '#ff9500', parentId: 'mc_kinder' },
+  // Haushalt
+  { id: 'sc_h_lebens', name: 'Lebensmittel',             color: '#34c759', parentId: 'mc_haush' },
+  { id: 'sc_h_reinig', name: 'Reinigung & Haushalt',     color: '#34c759', parentId: 'mc_haush' },
+  { id: 'sc_h_einr',   name: 'Möbel & Einrichtung',      color: '#34c759', parentId: 'mc_haush' },
+  // Fixkosten
+  { id: 'sc_f_miete',  name: 'Miete / Hypothek',         color: '#5856d6', parentId: 'mc_fixk' },
+  { id: 'sc_f_strom',  name: 'Strom',                    color: '#5856d6', parentId: 'mc_fixk' },
+  { id: 'sc_f_gas',    name: 'Gas & Heizung',            color: '#5856d6', parentId: 'mc_fixk' },
+  { id: 'sc_f_wasser', name: 'Wasser',                   color: '#5856d6', parentId: 'mc_fixk' },
+  { id: 'sc_f_gez',    name: 'Rundfunk',                 color: '#5856d6', parentId: 'mc_fixk' },
+  // Verträge
+  { id: 'sc_v_telefon',name: 'Telefon & Internet',       color: '#007aff', parentId: 'mc_vertr' },
+  { id: 'sc_v_stream', name: 'Streaming & Abos',         color: '#007aff', parentId: 'mc_vertr' },
+  { id: 'sc_v_versich',name: 'Versicherungen',           color: '#007aff', parentId: 'mc_vertr' },
+  // Mobilität
+  { id: 'sc_m_tanken', name: 'Tanken',                   color: '#ff6b35', parentId: 'mc_mobil' },
+  { id: 'sc_m_auto',   name: 'Auto (Steuer & Wartung)',  color: '#ff6b35', parentId: 'mc_mobil' },
+  { id: 'sc_m_oepu',   name: 'ÖPNV',                    color: '#ff6b35', parentId: 'mc_mobil' },
+  // Gesundheit
+  { id: 'sc_g_apoth',  name: 'Apotheke & Medikamente',  color: '#ff3b30', parentId: 'mc_gesund' },
+  { id: 'sc_g_arzt',   name: 'Arzt & Krankenhaus',      color: '#ff3b30', parentId: 'mc_gesund' },
+  { id: 'sc_g_sport',  name: 'Fitness & Sport',         color: '#ff3b30', parentId: 'mc_gesund' },
+  // Freizeit
+  { id: 'sc_fr_rest',  name: 'Restaurant & Café',       color: '#ff2d55', parentId: 'mc_freizeit' },
+  { id: 'sc_fr_reis',  name: 'Reisen & Urlaub',         color: '#ff2d55', parentId: 'mc_freizeit' },
+  { id: 'sc_fr_shop',  name: 'Kleidung & Shopping',     color: '#ff2d55', parentId: 'mc_freizeit' },
+  // Einnahmen
+  { id: 'sc_e_gehalt', name: 'Gehalt',                  color: '#34c759', parentId: 'mc_einn', special: 'income' },
+  { id: 'sc_e_neben',  name: 'Nebeneinkommen',          color: '#34c759', parentId: 'mc_einn', special: 'income' },
+  // Überträge
+  { id: 'sc_u_uebtr',  name: 'Übertrag',                color: '#636366', parentId: 'mc_uebtr', special: 'transfer' },
+  { id: 'sc_u_ausz',   name: 'Auszahlung',              color: '#af52de', parentId: 'mc_uebtr', special: 'discretionary' },
 ]
 
 function migrateTxs(txs) {
@@ -35,13 +69,17 @@ function migrateTxs(txs) {
   )
 }
 
+function migrateCats(cats) {
+  return (cats || []).map(c => 'parentId' in c ? c : { ...c, parentId: null })
+}
+
 function loadStorage() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return null
     const d = JSON.parse(raw)
     if (!d?.txs?.length) return null
-    return { txs: migrateTxs(d.txs), cats: d.cats?.length ? d.cats : DEFAULT_CATS, fileName: d.fileName || '' }
+    return { txs: migrateTxs(d.txs), cats: migrateCats(d.cats?.length ? d.cats : DEFAULT_CATS), fileName: d.fileName || '' }
   } catch { return null }
 }
 
