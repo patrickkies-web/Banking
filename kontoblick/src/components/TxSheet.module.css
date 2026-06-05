@@ -308,3 +308,65 @@
   color: var(--positive) !important;
   transition: color .2s;
 }
+
+/* Contract assignment list */
+.contractRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  width: 100%;
+  text-align: left;
+  position: relative;
+  transition: background .12s;
+  background: none;
+  border: none;
+}
+
+.contractRow:active { background: var(--surface-2); }
+
+.contractRowSep::after {
+  content: '';
+  position: absolute;
+  left: 16px;
+  right: 0;
+  bottom: 0;
+  height: .5px;
+  background: var(--sep);
+}
+
+.contractRowActive {
+  background: rgba(88,86,214,.06);
+}
+
+.contractIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(88,86,214,.12);
+  color: #5856d6;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.contractName {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.contractCheck {
+  font-size: 17px;
+  font-weight: 800;
+  color: #5856d6;
+  flex-shrink: 0;
+}
+
+.contractArrow {
+  font-size: 20px;
+  font-weight: 300;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
