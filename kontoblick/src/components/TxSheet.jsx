@@ -99,16 +99,15 @@ export default function TxSheet({ tx, cats, labels, setLabels, suggestedLabelId,
           </span>
           <div className={styles.headerActions}>
             <button
-              className={`${styles.doneBtn} ${saved ? styles.doneBtnSaved : ''}`}
+              className={`${styles.saveBtn} ${saved ? styles.saveBtnDone : ''}`}
               onClick={saveInPlace}
             >
               {saved ? '✓' : 'Speichern'}
             </button>
-            {hasNext && (
-              <button className={styles.nextBtn} onClick={saveAndNext} title="Nächste">
-                →
-              </button>
-            )}
+            {hasNext
+              ? <button className={styles.nextBtn} onClick={saveAndNext}>Weiter →</button>
+              : <button className={styles.nextBtn} onClick={() => { onSave(local); close(); }}>Fertig</button>
+            }
           </div>
         </div>
 

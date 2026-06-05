@@ -54,14 +54,42 @@
   font-weight: 700;
 }
 
-.doneBtn {
-  font-size: 17px;
-  font-weight: 600;
-  color: var(--blue);
-  transition: opacity .12s;
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.doneBtn:active { opacity: .4; }
+/* Secondary in-place save */
+.saveBtn {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  transition: opacity .12s, color .2s;
+}
+.saveBtn:active { opacity: .5; }
+
+.saveBtnDone {
+  color: var(--positive);
+}
+
+/* Primary navigation button */
+.nextBtn {
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 10px;
+  background: var(--blue);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+  transition: opacity .12s, transform .12s;
+  border: none;
+}
+.nextBtn:active { opacity: .7; transform: scale(.95); }
 
 /* Hero */
 .hero {
@@ -302,12 +330,6 @@
 
 /* Label active chip */
 .labelActive { color: #fff; }
-
-/* Saved feedback */
-.doneBtnSaved {
-  color: var(--positive) !important;
-  transition: color .2s;
-}
 
 /* Contract assignment list */
 .contractRow {
