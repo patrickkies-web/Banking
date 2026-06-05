@@ -267,3 +267,103 @@
   color: var(--text-secondary);
   line-height: 1.5;
 }
+
+/* Fixed costs matrix */
+.matrixWrap {
+  overflow-x: auto;
+  margin: 0 var(--page-x) 8px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  background: var(--surface);
+}
+
+.matrix {
+  border-collapse: collapse;
+  min-width: max-content;
+  width: 100%;
+}
+
+.matrixHeaderRow {
+  border-bottom: 1px solid var(--sep);
+}
+
+.matrixDataRow {
+  border-bottom: .5px solid var(--sep);
+}
+
+.matrixDataRow:last-child {
+  border-bottom: none;
+}
+
+.matrixCorner {
+  width: 120px;
+  min-width: 120px;
+  padding: 10px 14px;
+}
+
+.matrixColHeader {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 10px 12px;
+  white-space: nowrap;
+}
+
+.matrixLabelCell {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  padding: 11px 14px;
+  white-space: nowrap;
+  min-width: 120px;
+}
+
+.matrixCell {
+  text-align: center;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 11px 12px;
+  white-space: nowrap;
+}
+
+.matrixPaid {
+  color: var(--positive);
+}
+
+.matrixUnpaid {
+  color: var(--text-tertiary);
+  opacity: .4;
+}
+
+/* Period filter */
+.periodRow {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 0 var(--page-x) 8px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.periodRow::-webkit-scrollbar { display: none; }
+
+.periodPill {
+  flex-shrink: 0;
+  padding: 7px 14px;
+  border-radius: 99px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  border: none;
+  transition: background .15s, color .15s;
+  white-space: nowrap;
+}
+
+.periodPillActive {
+  background: var(--blue);
+  color: #fff;
+}

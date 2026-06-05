@@ -1,33 +1,62 @@
-import { useMemo } from 'react';
-import { formatCurrency, formatCurrencySigned, FREQ_LABEL, MONTHS_LONG } from '../lib/format.js';
+import { useState, useMemo } from 'react';
+import { formatCurrency, formatCurrencySigned, formatPeriod, FREQ_LABEL, MONTHS_LONG } from '../lib/format.js';
 import { monthlyEquivalent, occurrencesInRange } from '../lib/recurrence.js';
 import styles from './Dashboard.module.css';
 
-export default function Dashboard({ txs, cats }) {
-  const catById = useMemo(() => Object.fromEntries(cats.map(c => [c.id, c])), [cats]);
+export default function Dashboard({ txs, cats, labels }) {
+  const [activePeriod, setActivePeriod] = useState('all');
 
-  const income  = useMemo(() => txs.filter(t => t.amount > 0).reduce((s, t) => s + t.amount, 0), [txs]);
-  const expense = useMemo(() => txs.filter(t => t.amount < 0).reduce((s, t) => s + t.amount, 0), [txs]);
+  const specialIds = useMemo(() =>
+    new Set(cats.filter(c => c.special).map(c => c.id)),
+    [cats]
+  );
+
+  const periods = useMemo(() => {
+    const set = new Set(txs.map(t => t.period).filter(Boolean));
+    return [...set].sort();
+  }, [txs]);
+
+  const viewTxs = useMemo(() =>
+    activePeriod === 'all' ? txs : txs.filter(t => t.period === activePeriod),
+    [txs, activePeriod]
+  );
+
+  function isSpecial(tx) {
+    return (tx.categoryIds ?? []).some(id => specialIds.has(id));
+  }
+
+  const income  = useMemo(() => viewTxs.filter(t => t.amount > 0 && !isSpecial(t)).reduce((s, t) => s + t.amount, 0), [viewTxs, specialIds]);
+  const expense = useMemo(() => viewTxs.filter(t => t.amount < 0 && !isSpecial(t)).reduce((s, t) => s + t.amount, 0), [viewTxs, specialIds]);
   const balance = income + expense;
 
   const breakdown = useMemo(() => {
-    const map = {};
-    for (const tx of txs) {
-      const key = tx.categoryId ?? '__none__';
-      if (!map[key]) map[key] = { total: 0, count: 0 };
-      map[key].total += tx.amount;
-      map[key].count++;
-    }
-    return Object.entries(map)
-      .map(([id, { total, count }]) => ({ id, cat: catById[id] ?? null, total, count }))
-      .sort((a, b) => Math.abs(b.total) - Math.abs(a.total));
-  }, [txs, catById]);
+    const mainCats = cats.filter(c => !c.parentId).sort((a, b) => a.name.localeCompare(b.name, 'de'));
 
-  const maxAbs = breakdown.reduce((m, b) => Math.max(m, Math.abs(b.total)), 0) || 1;
+    return mainCats.map(mc => {
+      const subIds = cats.filter(c => c.parentId === mc.id).map(c => c.id);
+      const relevantIds = new Set([mc.id, ...subIds]);
+
+      const relevant = viewTxs.filter(t => (t.categoryIds ?? []).some(id => relevantIds.has(id)));
+      if (!relevant.length) return null;
+
+      const total = relevant.reduce((s, t) => s + t.amount, 0);
+
+      const subs = [...cats.filter(c => c.parentId === mc.id), ...(subIds.length === 0 ? [mc] : [])]
+        .map(sc => {
+          const scTxs = viewTxs.filter(t => (t.categoryIds ?? []).includes(sc.id));
+          return scTxs.length ? { cat: sc, total: scTxs.reduce((s, t) => s + t.amount, 0), count: scTxs.length } : null;
+        })
+        .filter(Boolean)
+        .sort((a, b) => Math.abs(b.total) - Math.abs(a.total));
+
+      return { mc, total, subs, special: !!mc.special };
+    }).filter(Boolean);
+  }, [viewTxs, cats]);
+
+  const maxAbs = breakdown.reduce((m, g) => Math.max(m, Math.abs(g.total)), 0) || 1;
 
   const recurring = useMemo(() => txs.filter(t => t.recurrence), [txs]);
 
-  // Month-by-month forecast for next 12 months
   const forecast = useMemo(() => {
     const now = new Date();
     const months = Array.from({ length: 12 }, (_, i) => {
@@ -50,6 +79,17 @@ export default function Dashboard({ txs, cats }) {
     }).filter(m => m.items.length > 0);
   }, [recurring]);
 
+  const fixedLabels = useMemo(() => (labels ?? []).filter(l => l.isFixedCost), [labels]);
+
+  const matrixCols = useMemo(() => {
+    const set = new Set(txs.map(t => t.period).filter(Boolean));
+    return [...set].sort();
+  }, [txs]);
+
+  function getPaid(labelId, period) {
+    return txs.some(t => t.labelId === labelId && t.period === period);
+  }
+
   if (!txs.length) {
     return (
       <div className={styles.empty}>
@@ -61,6 +101,29 @@ export default function Dashboard({ txs, cats }) {
 
   return (
     <div className={styles.wrap}>
+      {periods.length > 0 && (
+        <>
+          <p className={styles.sectionLabel}>Zeitraum</p>
+          <div className={styles.periodRow}>
+            <button
+              className={`${styles.periodPill} ${activePeriod === 'all' ? styles.periodPillActive : ''}`}
+              onClick={() => setActivePeriod('all')}
+            >
+              Alle
+            </button>
+            {periods.map(p => (
+              <button
+                key={p}
+                className={`${styles.periodPill} ${activePeriod === p ? styles.periodPillActive : ''}`}
+                onClick={() => setActivePeriod(p)}
+              >
+                {formatPeriod(p)}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+
       <p className={styles.sectionLabel}>Zusammenfassung</p>
       <div className={styles.summaryCard}>
         <Stat label="Einnahmen" amount={income}  green />
@@ -70,36 +133,58 @@ export default function Dashboard({ txs, cats }) {
         <Stat label="Saldo"     amount={balance} signed />
       </div>
 
-      {breakdown.length > 0 && (
+      {breakdown.filter(g => g.special).length > 0 && (
         <>
-          <p className={styles.sectionLabel}>Kategorien</p>
-          <div className={styles.listCard}>
-            {breakdown.map(({ id, cat, total, count }) => {
-              const color  = cat?.color ?? '#aeaeb2';
-              const pct    = Math.abs(total) / maxAbs * 100;
-              const isPos  = total >= 0;
-              return (
-                <div className={styles.catRow} key={id}>
-                  <div className={styles.catMeta}>
-                    <span className={styles.catDot} style={{ background: color }} />
-                    <span className={styles.catName}>{cat?.name ?? 'Nicht kategorisiert'}</span>
-                    <span className={styles.catCount}>{count}</span>
-                    <span
-                      className={styles.catTotal}
-                      style={{ color: isPos ? 'var(--positive)' : undefined }}
-                    >
-                      {formatCurrencySigned(total)}
-                    </span>
-                  </div>
-                  <div className={styles.barTrack}>
-                    <div
-                      className={styles.barFill}
-                      style={{ width: `${pct}%`, background: color }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
+          <p className={styles.sectionLabel}>Einnahmen & Überträge</p>
+          {breakdown.filter(g => g.special).map(g => (
+            <GroupCard key={g.mc.id} group={g} maxAbs={maxAbs} />
+          ))}
+        </>
+      )}
+
+      {breakdown.filter(g => !g.special).length > 0 && (
+        <>
+          <p className={styles.sectionLabel}>Ausgaben nach Kategorie</p>
+          {breakdown.filter(g => !g.special).map(g => (
+            <GroupCard key={g.mc.id} group={g} maxAbs={maxAbs} />
+          ))}
+        </>
+      )}
+
+      {fixedLabels.length > 0 && matrixCols.length > 0 && (
+        <>
+          <p className={styles.sectionLabel}>Fixkosten-Übersicht</p>
+          <div className={styles.matrixWrap}>
+            <table className={styles.matrix}>
+              <thead>
+                <tr className={styles.matrixHeaderRow}>
+                  <th className={styles.matrixCorner} />
+                  {matrixCols.map(col => (
+                    <th key={col} className={styles.matrixColHeader}>
+                      {formatPeriod(col)}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {fixedLabels.map(label => (
+                  <tr key={label.id} className={styles.matrixDataRow}>
+                    <td className={styles.matrixLabelCell}>{label.name}</td>
+                    {matrixCols.map(col => {
+                      const paid = getPaid(label.id, col);
+                      return (
+                        <td
+                          key={col}
+                          className={`${styles.matrixCell} ${paid ? styles.matrixPaid : styles.matrixUnpaid}`}
+                        >
+                          {paid ? '✓' : '✗'}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </>
       )}
@@ -161,6 +246,45 @@ export default function Dashboard({ txs, cats }) {
             </>
           )}
         </>
+      )}
+    </div>
+  );
+}
+
+function GroupCard({ group, maxAbs }) {
+  const { mc, total, subs } = group;
+  const pct = Math.abs(total) / maxAbs * 100;
+  const isPos = total >= 0;
+  return (
+    <div style={{ margin: '0 var(--page-x) 4px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0 4px' }}>
+        <span style={{ fontSize: 13, fontWeight: 700, color: mc.color, textTransform: 'uppercase', letterSpacing: '.04em' }}>
+          {mc.name}
+        </span>
+        <span style={{ fontSize: 14, fontWeight: 700, color: isPos ? 'var(--positive)' : 'var(--text-primary)' }}>
+          {formatCurrencySigned(total)}
+        </span>
+      </div>
+      <div style={{ background: 'var(--surface-3)', borderRadius: 4, height: 4, marginBottom: 6, overflow: 'hidden' }}>
+        <div style={{ height: '100%', width: `${pct}%`, background: mc.color, borderRadius: 4 }} />
+      </div>
+      {subs.length > 0 && (
+        <div style={{ background: 'var(--surface)', borderRadius: 'var(--radius)', overflow: 'hidden', boxShadow: 'var(--shadow-sm)' }}>
+          {subs.map(({ cat, total: st, count }, i) => (
+            <div key={cat.id} style={{
+              display: 'flex', alignItems: 'center', gap: 8,
+              padding: '10px 14px',
+              borderBottom: i < subs.length - 1 ? '.5px solid var(--sep)' : 'none',
+            }}>
+              <span style={{ width: 8, height: 8, borderRadius: '50%', background: cat.color, flexShrink: 0 }} />
+              <span style={{ flex: 1, fontSize: 14, fontWeight: 500 }}>{cat.name}</span>
+              <span style={{ fontSize: 12, color: 'var(--text-tertiary)', fontWeight: 500 }}>{count}</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: st >= 0 ? 'var(--positive)' : 'var(--text-primary)' }}>
+                {formatCurrencySigned(st)}
+              </span>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );

@@ -58,3 +58,9 @@ export function hashColor(str) {
 export function payeeInitial(name) {
   return (name || '?').trim()[0]?.toUpperCase() || '?';
 }
+
+export function formatPeriod(period) {
+  if (!period) return '';
+  const [y, m] = period.split('-');
+  return `${MONTHS_LONG[parseInt(m, 10) - 1]} ${y}`;
+}

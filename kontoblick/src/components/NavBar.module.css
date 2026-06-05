@@ -61,3 +61,11 @@
 .action:active {
   opacity: .4;
 }
+
+.leftAction {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: opacity .12s;
+}
+.leftAction:active { opacity: .4; }

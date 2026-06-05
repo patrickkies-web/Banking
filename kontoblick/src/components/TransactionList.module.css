@@ -143,3 +143,65 @@
   max-width: 260px;
   margin: 0 auto;
 }
+
+/* Period groups */
+.periodGroup {
+  margin-bottom: 12px;
+}
+
+.periodHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px var(--page-x) 4px;
+}
+
+.periodHeaderInfo {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.periodHeaderName {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.periodHeaderSub {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  font-weight: 500;
+}
+
+.boundaryBtns {
+  display: flex;
+  gap: 4px;
+}
+
+.boundaryBtn {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  box-shadow: var(--shadow-sm);
+  border: none;
+  transition: opacity .12s;
+}
+
+.boundaryBtn:active { opacity: .5; }
+
+/* Label tag in row */
+.labelTag {
+  font-size: 11px;
+  font-weight: 700;
+  color: #5856d6;
+  background: rgba(88,86,214,.12);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
