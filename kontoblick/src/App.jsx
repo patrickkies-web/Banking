@@ -7,6 +7,7 @@ import DropZone from './components/DropZone.jsx'
 import CategoryManager from './components/CategoryManager.jsx'
 import TransactionList from './components/TransactionList.jsx'
 import Dashboard from './components/Dashboard.jsx'
+import Forecast from './components/Forecast.jsx'
 import styles from './App.module.css'
 
 const STORAGE_KEY = 'kontoblick_v1'
@@ -207,7 +208,7 @@ export default function App() {
   return (
     <div className={styles.app}>
       <NavBar
-        title={tab === 'inbox' ? 'Postfach' : 'Dashboard'}
+        title={tab === 'inbox' ? 'Postfach' : tab === 'forecast' ? 'Vorschau' : 'Dashboard'}
         subtitle={tab === 'inbox' ? fileName : undefined}
         leftAction={{ label: '← Neue Datei', onPress: handleReset }}
         action={{ label: 'Kategorien', onPress: () => setMgr(true) }}
@@ -235,6 +236,8 @@ export default function App() {
               filter={filter}
               openMgr={() => setMgr(true)}
             />
+          : tab === 'forecast'
+          ? <Forecast txs={txs} />
           : <Dashboard txs={txs} cats={cats} />
         }
       </div>

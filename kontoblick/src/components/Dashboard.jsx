@@ -1,43 +1,51 @@
-import { useMemo } from 'react';
-import { formatCurrency, formatCurrencySigned, FREQ_LABEL, MONTHS_LONG } from '../lib/format.js';
+import { useState, useMemo } from 'react';
+import { formatCurrency, formatCurrencySigned, formatPeriod, FREQ_LABEL, MONTHS_LONG } from '../lib/format.js';
 import { monthlyEquivalent, occurrencesInRange } from '../lib/recurrence.js';
 import styles from './Dashboard.module.css';
 
 export default function Dashboard({ txs, cats }) {
-  const catById = useMemo(() => Object.fromEntries(cats.map(c => [c.id, c])), [cats]);
+  const [activePeriod, setActivePeriod] = useState('all');
 
-  // IDs of special categories to exclude from regular income/expense totals
   const specialIds = useMemo(() =>
     new Set(cats.filter(c => c.special).map(c => c.id)),
     [cats]
+  );
+
+  // Unique sorted periods assigned to any tx
+  const periods = useMemo(() => {
+    const set = new Set(txs.map(t => t.period).filter(Boolean));
+    return [...set].sort();
+  }, [txs]);
+
+  // Historical view, filtered by selected period
+  const viewTxs = useMemo(() =>
+    activePeriod === 'all' ? txs : txs.filter(t => t.period === activePeriod),
+    [txs, activePeriod]
   );
 
   function isSpecial(tx) {
     return (tx.categoryIds ?? []).some(id => specialIds.has(id));
   }
 
-  const income  = useMemo(() => txs.filter(t => t.amount > 0 && !isSpecial(t)).reduce((s, t) => s + t.amount, 0), [txs, specialIds]);
-  const expense = useMemo(() => txs.filter(t => t.amount < 0 && !isSpecial(t)).reduce((s, t) => s + t.amount, 0), [txs, specialIds]);
+  const income  = useMemo(() => viewTxs.filter(t => t.amount > 0 && !isSpecial(t)).reduce((s, t) => s + t.amount, 0), [viewTxs, specialIds]);
+  const expense = useMemo(() => viewTxs.filter(t => t.amount < 0 && !isSpecial(t)).reduce((s, t) => s + t.amount, 0), [viewTxs, specialIds]);
   const balance = income + expense;
 
   const breakdown = useMemo(() => {
-    const catById2 = Object.fromEntries(cats.map(c => [c.id, c]));
     const mainCats = cats.filter(c => !c.parentId).sort((a, b) => a.name.localeCompare(b.name, 'de'));
 
     return mainCats.map(mc => {
       const subIds = cats.filter(c => c.parentId === mc.id).map(c => c.id);
       const relevantIds = new Set([mc.id, ...subIds]);
 
-      // txs that have at least one relevant category
-      const relevant = txs.filter(t => (t.categoryIds ?? []).some(id => relevantIds.has(id)));
+      const relevant = viewTxs.filter(t => (t.categoryIds ?? []).some(id => relevantIds.has(id)));
       if (!relevant.length) return null;
 
       const total = relevant.reduce((s, t) => s + t.amount, 0);
 
-      // sub-breakdown per sub-cat
       const subs = [...cats.filter(c => c.parentId === mc.id), ...(subIds.length === 0 ? [mc] : [])]
         .map(sc => {
-          const scTxs = txs.filter(t => (t.categoryIds ?? []).includes(sc.id));
+          const scTxs = viewTxs.filter(t => (t.categoryIds ?? []).includes(sc.id));
           return scTxs.length ? { cat: sc, total: scTxs.reduce((s, t) => s + t.amount, 0), count: scTxs.length } : null;
         })
         .filter(Boolean)
@@ -45,13 +53,13 @@ export default function Dashboard({ txs, cats }) {
 
       return { mc, total, subs, special: !!mc.special };
     }).filter(Boolean);
-  }, [txs, cats]);
+  }, [viewTxs, cats]);
 
   const maxAbs = breakdown.reduce((m, g) => Math.max(m, Math.abs(g.total)), 0) || 1;
 
+  // Recurring always uses all txs (future-oriented)
   const recurring = useMemo(() => txs.filter(t => t.recurrence), [txs]);
 
-  // Month-by-month forecast for next 12 months
   const forecast = useMemo(() => {
     const now = new Date();
     const months = Array.from({ length: 12 }, (_, i) => {
@@ -85,6 +93,29 @@ export default function Dashboard({ txs, cats }) {
 
   return (
     <div className={styles.wrap}>
+      {periods.length > 0 && (
+        <>
+          <p className={styles.sectionLabel}>Zeitraum</p>
+          <div className={styles.periodRow}>
+            <button
+              className={`${styles.periodPill} ${activePeriod === 'all' ? styles.periodPillActive : ''}`}
+              onClick={() => setActivePeriod('all')}
+            >
+              Alle
+            </button>
+            {periods.map(p => (
+              <button
+                key={p}
+                className={`${styles.periodPill} ${activePeriod === p ? styles.periodPillActive : ''}`}
+                onClick={() => setActivePeriod(p)}
+              >
+                {formatPeriod(p)}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+
       <p className={styles.sectionLabel}>Zusammenfassung</p>
       <div className={styles.summaryCard}>
         <Stat label="Einnahmen" amount={income}  green />

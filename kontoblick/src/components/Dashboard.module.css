@@ -267,3 +267,32 @@
   color: var(--text-secondary);
   line-height: 1.5;
 }
+
+/* Period filter */
+.periodRow {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 0 var(--page-x) 8px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.periodRow::-webkit-scrollbar { display: none; }
+
+.periodPill {
+  flex-shrink: 0;
+  padding: 7px 14px;
+  border-radius: 99px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  transition: background .15s, color .15s;
+  white-space: nowrap;
+}
+
+.periodPillActive {
+  background: var(--blue);
+  color: #fff;
+}

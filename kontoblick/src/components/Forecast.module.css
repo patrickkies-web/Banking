@@ -1,0 +1,108 @@
+.wrap {
+  padding-bottom: 24px;
+}
+
+.empty {
+  padding: 60px var(--page-x) 20px;
+  text-align: center;
+}
+
+.emptyTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.emptySub {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  max-width: 260px;
+  margin: 0 auto;
+}
+
+.monthBlock {
+  margin-bottom: 4px;
+}
+
+.monthHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px var(--page-x) 6px;
+}
+
+.monthLabel {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.monthTotal {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.pos { color: var(--positive); }
+.neg { color: var(--text-primary); }
+
+.listCard {
+  background: var(--surface);
+  border-radius: var(--radius);
+  margin: 0 var(--page-x) 4px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 16px;
+  position: relative;
+}
+
+.rowSep::after {
+  content: '';
+  position: absolute;
+  left: 16px;
+  right: 0;
+  bottom: 0;
+  height: .5px;
+  background: var(--sep);
+}
+
+.day {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  width: 28px;
+  flex-shrink: 0;
+}
+
+.payee {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.amt {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.emptyMonth {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  text-align: center;
+  padding: 12px var(--page-x);
+  background: var(--surface);
+  border-radius: var(--radius);
+  margin: 0 var(--page-x) 4px;
+}
