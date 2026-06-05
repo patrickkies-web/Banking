@@ -11,6 +11,24 @@ import styles from './App.module.css'
 
 const STORAGE_KEY = 'kontoblick_v1'
 
+// special: 'income' | 'transfer' | 'discretionary' → Dashboard treats them separately
+const DEFAULT_CATS = [
+  { id: 'dc_auszahlung',  name: 'Auszahlung',           color: '#af52de', special: 'discretionary' },
+  { id: 'dc_einnahmen',   name: 'Einnahmen',            color: '#34c759', special: 'income' },
+  { id: 'dc_gesundheit',  name: 'Gesundheit',           color: '#ff3b30' },
+  { id: 'dc_kleidung',    name: 'Kleidung & Shopping',  color: '#ff6b35' },
+  { id: 'dc_lebens',      name: 'Lebensmittel',         color: '#30b0c7' },
+  { id: 'dc_reisen',      name: 'Reisen & Urlaub',      color: '#5856d6' },
+  { id: 'dc_restaurant',  name: 'Restaurant & Café',    color: '#ff2d55' },
+  { id: 'dc_sonstiges',   name: 'Sonstiges',            color: '#aeaeb2' },
+  { id: 'dc_streaming',   name: 'Streaming & Abos',     color: '#ffcc00' },
+  { id: 'dc_telefon',     name: 'Telefon & Internet',   color: '#5ac8fa' },
+  { id: 'dc_transport',   name: 'Transport',            color: '#ff9500' },
+  { id: 'dc_uebertrag',   name: 'Übertrag',             color: '#636366', special: 'transfer' },
+  { id: 'dc_versich',     name: 'Versicherungen',       color: '#af52de' },
+  { id: 'dc_wohnen',      name: 'Wohnen & Nebenkosten', color: '#007aff' },
+]
+
 function migrateTxs(txs) {
   return (txs || []).map(t =>
     t.categoryIds ? t : { ...t, categoryIds: t.categoryId ? [t.categoryId] : [] }
@@ -23,7 +41,7 @@ function loadStorage() {
     if (!raw) return null
     const d = JSON.parse(raw)
     if (!d?.txs?.length) return null
-    return { txs: migrateTxs(d.txs), cats: d.cats || [], fileName: d.fileName || '' }
+    return { txs: migrateTxs(d.txs), cats: d.cats?.length ? d.cats : DEFAULT_CATS, fileName: d.fileName || '' }
   } catch { return null }
 }
 
@@ -31,7 +49,7 @@ const _stored = loadStorage()
 
 export default function App() {
   const [txs,      setTxs]      = useState(_stored?.txs      ?? [])
-  const [cats,     setCats]     = useState(_stored?.cats     ?? [])
+  const [cats,     setCats]     = useState(_stored?.cats ?? DEFAULT_CATS)
   const [tab,      setTab]      = useState('inbox')
   const [filter,   setFilter]   = useState('open')
   const [mgr,      setMgr]      = useState(false)

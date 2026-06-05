@@ -25,7 +25,7 @@ export default function CategoryManager({ open, cats, setCats, txs, setTxs, onCl
   function add() {
     const n = name.trim();
     if (!n) return;
-    setCats(prev => [...prev, { id: uid(), name: n, color }]);
+    setCats(prev => [...prev, { id: uid(), name: n, color }].sort((a, b) => a.name.localeCompare(b.name, 'de')));
     setName('');
     setColor(CAT_COLORS[(cats.length + 1) % CAT_COLORS.length]);
   }

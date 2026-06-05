@@ -13,9 +13,16 @@ export default function TransactionList({ txs, setTxs, cats, filter, openMgr }) 
   );
 
   const selectedTx = selectedId != null ? txs.find(t => t.id === selectedId) ?? null : null;
+  const selectedIdx = selectedId != null ? filtered.findIndex(t => t.id === selectedId) : -1;
 
   function handleSave(updated) {
     setTxs(prev => prev.map(t => t.id === updated.id ? updated : t));
+  }
+
+  function handleSaveAndNext(updated) {
+    const nextTx = filtered[selectedIdx + 1] ?? null;
+    setTxs(prev => prev.map(t => t.id === updated.id ? updated : t));
+    setSelectedId(nextTx?.id ?? null);
   }
 
   if (!filtered.length) {
@@ -99,6 +106,9 @@ export default function TransactionList({ txs, setTxs, cats, filter, openMgr }) 
           tx={selectedTx}
           cats={cats}
           onSave={handleSave}
+          onSaveAndNext={handleSaveAndNext}
+          hasNext={selectedIdx >= 0 && selectedIdx < filtered.length - 1}
+          navPos={{ current: selectedIdx + 1, total: filtered.length }}
           onClose={() => setSelectedId(null)}
           openMgr={openMgr}
         />

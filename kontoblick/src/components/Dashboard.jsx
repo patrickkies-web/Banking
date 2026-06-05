@@ -6,26 +6,40 @@ import styles from './Dashboard.module.css';
 export default function Dashboard({ txs, cats }) {
   const catById = useMemo(() => Object.fromEntries(cats.map(c => [c.id, c])), [cats]);
 
-  const income  = useMemo(() => txs.filter(t => t.amount > 0).reduce((s, t) => s + t.amount, 0), [txs]);
-  const expense = useMemo(() => txs.filter(t => t.amount < 0).reduce((s, t) => s + t.amount, 0), [txs]);
+  // IDs of special categories to exclude from regular income/expense totals
+  const specialIds = useMemo(() =>
+    new Set(cats.filter(c => c.special).map(c => c.id)),
+    [cats]
+  );
+
+  function isSpecial(tx) {
+    return (tx.categoryIds ?? []).some(id => specialIds.has(id));
+  }
+
+  const income  = useMemo(() => txs.filter(t => t.amount > 0 && !isSpecial(t)).reduce((s, t) => s + t.amount, 0), [txs, specialIds]);
+  const expense = useMemo(() => txs.filter(t => t.amount < 0 && !isSpecial(t)).reduce((s, t) => s + t.amount, 0), [txs, specialIds]);
   const balance = income + expense;
 
   const breakdown = useMemo(() => {
-    const map = {};
+    const regular = {}, special = {};
     for (const tx of txs) {
       const ids = (tx.categoryIds ?? []).length ? tx.categoryIds : ['__none__'];
       for (const key of ids) {
-        if (!map[key]) map[key] = { total: 0, count: 0 };
-        map[key].total += tx.amount;
-        map[key].count++;
+        const cat = catById[key];
+        const bucket = cat?.special ? special : regular;
+        if (!bucket[key]) bucket[key] = { total: 0, count: 0 };
+        bucket[key].total += tx.amount;
+        bucket[key].count++;
       }
     }
-    return Object.entries(map)
+    const toRows = (map) => Object.entries(map)
       .map(([id, { total, count }]) => ({ id, cat: catById[id] ?? null, total, count }))
       .sort((a, b) => Math.abs(b.total) - Math.abs(a.total));
+    return { regular: toRows(regular), special: toRows(special) };
   }, [txs, catById]);
 
-  const maxAbs = breakdown.reduce((m, b) => Math.max(m, Math.abs(b.total)), 0) || 1;
+  const allRows = [...breakdown.regular, ...breakdown.special];
+  const maxAbs = allRows.reduce((m, b) => Math.max(m, Math.abs(b.total)), 0) || 1;
 
   const recurring = useMemo(() => txs.filter(t => t.recurrence), [txs]);
 
@@ -72,36 +86,20 @@ export default function Dashboard({ txs, cats }) {
         <Stat label="Saldo"     amount={balance} signed />
       </div>
 
-      {breakdown.length > 0 && (
+      {breakdown.special.length > 0 && (
         <>
-          <p className={styles.sectionLabel}>Kategorien</p>
+          <p className={styles.sectionLabel}>Einnahmen & Überträge</p>
           <div className={styles.listCard}>
-            {breakdown.map(({ id, cat, total, count }) => {
-              const color  = cat?.color ?? '#aeaeb2';
-              const pct    = Math.abs(total) / maxAbs * 100;
-              const isPos  = total >= 0;
-              return (
-                <div className={styles.catRow} key={id}>
-                  <div className={styles.catMeta}>
-                    <span className={styles.catDot} style={{ background: color }} />
-                    <span className={styles.catName}>{cat?.name ?? 'Nicht kategorisiert'}</span>
-                    <span className={styles.catCount}>{count}</span>
-                    <span
-                      className={styles.catTotal}
-                      style={{ color: isPos ? 'var(--positive)' : undefined }}
-                    >
-                      {formatCurrencySigned(total)}
-                    </span>
-                  </div>
-                  <div className={styles.barTrack}>
-                    <div
-                      className={styles.barFill}
-                      style={{ width: `${pct}%`, background: color }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
+            {breakdown.special.map(row => <CatRow key={row.id} {...row} maxAbs={maxAbs} />)}
+          </div>
+        </>
+      )}
+
+      {breakdown.regular.length > 0 && (
+        <>
+          <p className={styles.sectionLabel}>Ausgaben nach Kategorie</p>
+          <div className={styles.listCard}>
+            {breakdown.regular.map(row => <CatRow key={row.id} {...row} maxAbs={maxAbs} />)}
           </div>
         </>
       )}
@@ -164,6 +162,27 @@ export default function Dashboard({ txs, cats }) {
           )}
         </>
       )}
+    </div>
+  );
+}
+
+function CatRow({ id, cat, total, count, maxAbs }) {
+  const color = cat?.color ?? '#aeaeb2';
+  const pct   = Math.abs(total) / maxAbs * 100;
+  const isPos = total >= 0;
+  return (
+    <div className={styles.catRow} key={id}>
+      <div className={styles.catMeta}>
+        <span className={styles.catDot} style={{ background: color }} />
+        <span className={styles.catName}>{cat?.name ?? 'Nicht kategorisiert'}</span>
+        <span className={styles.catCount}>{count}</span>
+        <span className={styles.catTotal} style={{ color: isPos ? 'var(--positive)' : undefined }}>
+          {formatCurrencySigned(total)}
+        </span>
+      </div>
+      <div className={styles.barTrack}>
+        <div className={styles.barFill} style={{ width: `${pct}%`, background: color }} />
+      </div>
     </div>
   );
 }

@@ -3,7 +3,7 @@ import { formatDate, formatCurrencySigned } from '../lib/format.js';
 import RecurrenceEditor from './RecurrenceEditor.jsx';
 import styles from './TxSheet.module.css';
 
-export default function TxSheet({ tx, cats, onSave, onClose, openMgr }) {
+export default function TxSheet({ tx, cats, onSave, onSaveAndNext, hasNext, navPos, onClose, openMgr }) {
   const [visible, setVisible] = useState(false);
   const [local, setLocal] = useState(tx);
 
@@ -15,6 +15,11 @@ export default function TxSheet({ tx, cats, onSave, onClose, openMgr }) {
     onSave(local);
     setVisible(false);
     setTimeout(onClose, 340);
+  }
+
+  function saveAndNext() {
+    onSaveAndNext(local);
+    // TxSheet stays mounted (parent swaps tx), no animation needed
   }
 
   function cancel() {
@@ -44,8 +49,17 @@ export default function TxSheet({ tx, cats, onSave, onClose, openMgr }) {
 
         <div className={styles.header}>
           <button className={styles.cancelBtn} onClick={cancel}>Abbrechen</button>
-          <span className={styles.title}>Transaktion</span>
-          <button className={styles.doneBtn} onClick={save}>Fertig</button>
+          <span className={styles.title}>
+            {navPos ? `${navPos.current} / ${navPos.total}` : 'Transaktion'}
+          </span>
+          <div className={styles.headerActions}>
+            <button className={styles.doneBtn} onClick={save}>Fertig</button>
+            {hasNext && (
+              <button className={styles.nextBtn} onClick={saveAndNext} title="Nächste">
+                →
+              </button>
+            )}
+          </div>
         </div>
 
         <div className={styles.hero}>

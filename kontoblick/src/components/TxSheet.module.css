@@ -54,6 +54,12 @@
   font-weight: 700;
 }
 
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .doneBtn {
   font-size: 17px;
   font-weight: 600;
@@ -62,6 +68,21 @@
 }
 
 .doneBtn:active { opacity: .4; }
+
+.nextBtn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--blue);
+  color: #fff;
+  font-size: 18px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  transition: opacity .12s, transform .12s;
+}
+
+.nextBtn:active { opacity: .7; transform: scale(.9); }
 
 /* Hero */
 .hero {
