@@ -57,7 +57,11 @@ export default function App() {
     reader.onload = e => {
       try {
         const d = JSON.parse(e.target.result)
-        setTxs(d.txs || [])
+        // migrate old single-categoryId format
+        const txs = (d.txs || []).map(t =>
+          t.categoryIds ? t : { ...t, categoryIds: t.categoryId ? [t.categoryId] : [] }
+        )
+        setTxs(txs)
         setCats(d.cats || [])
         setFileName(d.fileName || '')
         setTab('inbox')
@@ -71,13 +75,13 @@ export default function App() {
     const catById = Object.fromEntries(cats.map(c => [c.id, c]))
     const head = ['Datum','Typ','Empfänger','Betrag','Zweck','Kategorie','Rhythmus']
     const rows = txs.map(t => {
-      const c = t.categoryId ? catById[t.categoryId] : null
+      const catNames = (t.categoryIds ?? []).map(id => catById[id]?.name).filter(Boolean).join(', ')
       const r = t.recurrence
       return [
         t.date, t.type, t.payee,
         String(t.amount).replace('.', ','),
         t.purpose,
-        c?.name ?? '',
+        catNames,
         r ? r.freq : '',
       ].map(v => {
         v = v == null ? '' : String(v)
@@ -92,8 +96,8 @@ export default function App() {
     flash('CSV exportiert')
   }
 
-  const openCount = txs.filter(t => !t.categoryId).length
-  const doneCount = txs.filter(t =>  t.categoryId).length
+  const openCount = txs.filter(t => !(t.categoryIds ?? []).length).length
+  const doneCount = txs.filter(t =>  !!(t.categoryIds ?? []).length).length
 
   if (!txs.length) {
     return (

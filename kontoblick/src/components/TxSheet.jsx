@@ -23,7 +23,13 @@ export default function TxSheet({ tx, cats, onSave, onClose, openMgr }) {
   }
 
   function toggleCat(id) {
-    setLocal(prev => ({ ...prev, categoryId: prev.categoryId === id ? null : id }));
+    setLocal(prev => {
+      const ids = prev.categoryIds ?? [];
+      return {
+        ...prev,
+        categoryIds: ids.includes(id) ? ids.filter(x => x !== id) : [...ids, id],
+      };
+    });
   }
 
   const isPos = local.amount >= 0;
@@ -59,7 +65,7 @@ export default function TxSheet({ tx, cats, onSave, onClose, openMgr }) {
           </>
         )}
 
-        <p className={styles.sectionLabel}>Kategorie</p>
+        <p className={styles.sectionLabel}>Kategorien</p>
         {cats.length === 0 ? (
           <div className={styles.catEmpty}>
             <button className={styles.newCatBtn} onClick={openMgr}>
@@ -69,7 +75,7 @@ export default function TxSheet({ tx, cats, onSave, onClose, openMgr }) {
         ) : (
           <div className={styles.catGrid}>
             {cats.map(cat => {
-              const active = local.categoryId === cat.id;
+              const active = (local.categoryIds ?? []).includes(cat.id);
               return (
                 <button
                   key={cat.id}

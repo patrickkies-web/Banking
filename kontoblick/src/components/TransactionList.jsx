@@ -7,8 +7,8 @@ export default function TransactionList({ txs, setTxs, cats, filter, openMgr }) 
   const [selectedId, setSelectedId] = useState(null);
 
   const filtered = txs.filter(t =>
-    filter === 'open' ? !t.categoryId :
-    filter === 'done' ?  !!t.categoryId :
+    filter === 'open' ? !(t.categoryIds ?? []).length :
+    filter === 'done' ?  !!(t.categoryIds ?? []).length :
     true
   );
 
@@ -42,7 +42,7 @@ export default function TransactionList({ txs, setTxs, cats, filter, openMgr }) 
     <>
       <div className={styles.card}>
         {filtered.map((tx, i) => {
-          const cat = tx.categoryId ? cats.find(c => c.id === tx.categoryId) : null;
+          const txCats = (tx.categoryIds ?? []).map(id => cats.find(c => c.id === id)).filter(Boolean);
           const isPos = tx.amount >= 0;
           const isLast = i === filtered.length - 1;
 
@@ -74,14 +74,20 @@ export default function TransactionList({ txs, setTxs, cats, filter, openMgr }) 
                 <div className={`${styles.amount} ${isPos ? styles.amountPos : ''}`}>
                   {formatCurrencySigned(tx.amount)}
                 </div>
-                {cat && (
-                  <div
-                    className={styles.catChip}
-                    style={{ background: cat.color + '22', color: cat.color }}
-                  >
-                    {cat.name}
-                  </div>
-                )}
+                <div className={styles.chips}>
+                  {txCats.slice(0, 2).map(cat => (
+                    <div
+                      key={cat.id}
+                      className={styles.catChip}
+                      style={{ background: cat.color + '22', color: cat.color }}
+                    >
+                      {cat.name}
+                    </div>
+                  ))}
+                  {txCats.length > 2 && (
+                    <div className={styles.catChipMore}>+{txCats.length - 2}</div>
+                  )}
+                </div>
               </div>
             </div>
           );

@@ -13,10 +13,12 @@ export default function Dashboard({ txs, cats }) {
   const breakdown = useMemo(() => {
     const map = {};
     for (const tx of txs) {
-      const key = tx.categoryId ?? '__none__';
-      if (!map[key]) map[key] = { total: 0, count: 0 };
-      map[key].total += tx.amount;
-      map[key].count++;
+      const ids = (tx.categoryIds ?? []).length ? tx.categoryIds : ['__none__'];
+      for (const key of ids) {
+        if (!map[key]) map[key] = { total: 0, count: 0 };
+        map[key].total += tx.amount;
+        map[key].count++;
+      }
     }
     return Object.entries(map)
       .map(([id, { total, count }]) => ({ id, cat: catById[id] ?? null, total, count }))

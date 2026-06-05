@@ -32,7 +32,7 @@ export default function CategoryManager({ open, cats, setCats, txs, setTxs, onCl
 
   function remove(id) {
     setCats(prev => prev.filter(c => c.id !== id));
-    setTxs(prev => prev.map(t => t.categoryId === id ? { ...t, categoryId: null } : t));
+    setTxs(prev => prev.map(t => ({ ...t, categoryIds: (t.categoryIds ?? []).filter(x => x !== id) })));
   }
 
   function rename(id, value) {
@@ -77,7 +77,7 @@ export default function CategoryManager({ open, cats, setCats, txs, setTxs, onCl
                   onChange={e => rename(c.id, e.target.value)}
                 />
                 <span className={styles.count}>
-                  {txs.filter(t => t.categoryId === c.id).length}
+                  {txs.filter(t => (t.categoryIds ?? []).includes(c.id)).length}
                 </span>
                 <button className={styles.del} onClick={() => remove(c.id)}>Löschen</button>
               </div>
