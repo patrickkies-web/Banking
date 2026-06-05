@@ -105,10 +105,17 @@ export default function TransactionList({ txs, setTxs, cats, labels, setLabels, 
   }
 
   function handleSaveAndNext(updated) {
-    const nextTx = filtered[selectedIdx + 1] ?? null;
-    setTxs(prev => prev.map(t => t.id === updated.id ? updated : t));
+    const newTxs = txs.map(t => t.id === updated.id ? updated : t);
+    const curIdx = newTxs.findIndex(t => t.id === updated.id);
+    const isOpen = t => !(t.categoryIds ?? []).length;
+    const after  = newTxs.slice(curIdx + 1).find(isOpen);
+    const before = newTxs.slice(0, curIdx).find(isOpen);
+    const nextTx = after ?? before ?? null;
+    setTxs(newTxs);
     setSelectedId(nextTx?.id ?? null);
   }
+
+  const hasNextUncategorized = txs.some(t => t.id !== selectedId && !(t.categoryIds ?? []).length);
 
   if (!filtered.length) {
     return (
@@ -274,7 +281,7 @@ export default function TransactionList({ txs, setTxs, cats, labels, setLabels, 
           suggestedLabelId={suggestedLabelId}
           onSave={handleSave}
           onSaveAndNext={handleSaveAndNext}
-          hasNext={selectedIdx >= 0 && selectedIdx < filtered.length - 1}
+          hasNext={hasNextUncategorized}
           navPos={{ current: selectedIdx + 1, total: filtered.length }}
           onClose={() => setSelectedId(null)}
           openMgr={openMgr}
