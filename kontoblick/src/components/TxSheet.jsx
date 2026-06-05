@@ -8,6 +8,7 @@ export default function TxSheet({ tx, cats, labels, setLabels, suggestedLabelId,
   const [local, setLocal] = useState(tx);
   const [showNewLabel, setShowNewLabel] = useState(false);
   const [newLabelName, setNewLabelName] = useState('');
+  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     requestAnimationFrame(() => setVisible(true));
@@ -17,19 +18,20 @@ export default function TxSheet({ tx, cats, labels, setLabels, suggestedLabelId,
     setLocal(tx);
     setShowNewLabel(false);
     setNewLabelName('');
+    setSaved(false);
   }, [tx.id]);
 
-  function save() {
+  function saveInPlace() {
     onSave(local);
-    setVisible(false);
-    setTimeout(onClose, 340);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 1500);
   }
 
   function saveAndNext() {
     onSaveAndNext(local);
   }
 
-  function cancel() {
+  function close() {
     setVisible(false);
     setTimeout(onClose, 340);
   }
@@ -84,18 +86,23 @@ export default function TxSheet({ tx, cats, labels, setLabels, suggestedLabelId,
   return (
     <div
       className={`${styles.backdrop} ${visible ? styles.show : ''}`}
-      onClick={e => { if (e.target === e.currentTarget) cancel(); }}
+      onClick={e => { if (e.target === e.currentTarget) close(); }}
     >
       <div className={styles.sheet}>
         <div className={styles.handle} />
 
         <div className={styles.header}>
-          <button className={styles.cancelBtn} onClick={cancel}>Abbrechen</button>
+          <button className={styles.cancelBtn} onClick={close}>Schließen</button>
           <span className={styles.title}>
             {navPos ? `${navPos.current} / ${navPos.total}` : 'Transaktion'}
           </span>
           <div className={styles.headerActions}>
-            <button className={styles.doneBtn} onClick={save}>Fertig</button>
+            <button
+              className={`${styles.doneBtn} ${saved ? styles.doneBtnSaved : ''}`}
+              onClick={saveInPlace}
+            >
+              {saved ? '✓' : 'Speichern'}
+            </button>
             {hasNext && (
               <button className={styles.nextBtn} onClick={saveAndNext} title="Nächste">
                 →

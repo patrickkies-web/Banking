@@ -302,3 +302,9 @@
 
 /* Label active chip */
 .labelActive { color: #fff; }
+
+/* Saved feedback */
+.doneBtnSaved {
+  color: var(--positive) !important;
+  transition: color .2s;
+}
