@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { parseFile } from './lib/parse.js'
 import NavBar from './components/NavBar.jsx'
 import TabBar from './components/TabBar.jsx'
@@ -9,16 +9,60 @@ import TransactionList from './components/TransactionList.jsx'
 import Dashboard from './components/Dashboard.jsx'
 import styles from './App.module.css'
 
+const STORAGE_KEY = 'kontoblick_v1'
+
+function migrateTxs(txs) {
+  return (txs || []).map(t =>
+    t.categoryIds ? t : { ...t, categoryIds: t.categoryId ? [t.categoryId] : [] }
+  )
+}
+
+function loadStorage() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return null
+    const d = JSON.parse(raw)
+    if (!d?.txs?.length) return null
+    return { txs: migrateTxs(d.txs), cats: d.cats || [], fileName: d.fileName || '' }
+  } catch { return null }
+}
+
+const _stored = loadStorage()
+
 export default function App() {
-  const [txs,      setTxs]      = useState([])
-  const [cats,     setCats]     = useState([])
+  const [txs,      setTxs]      = useState(_stored?.txs      ?? [])
+  const [cats,     setCats]     = useState(_stored?.cats     ?? [])
   const [tab,      setTab]      = useState('inbox')
   const [filter,   setFilter]   = useState('open')
   const [mgr,      setMgr]      = useState(false)
-  const [toast,    setToast]    = useState('')
-  const [fileName, setFileName] = useState('')
+  const [toast,    setToast]    = useState(_stored ? 'Projekt wiederhergestellt' : '')
+  const [fileName, setFileName] = useState(_stored?.fileName ?? '')
   const projRef = useRef(null)
   const toastTimer = useRef(null)
+
+  // Auto-save to localStorage on every change
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ txs, cats, fileName }))
+    } catch {}
+  }, [txs, cats, fileName])
+
+  // Clear initial restore toast
+  useEffect(() => {
+    if (!_stored) return
+    toastTimer.current = setTimeout(() => setToast(''), 2400)
+    return () => clearTimeout(toastTimer.current)
+  }, [])
+
+  function handleReset() {
+    if (!confirm('Alle Daten löschen und neu starten?')) return
+    localStorage.removeItem(STORAGE_KEY)
+    setTxs([])
+    setCats([])
+    setFileName('')
+    setTab('inbox')
+    setFilter('open')
+  }
 
   function flash(msg) {
     setToast(msg)
@@ -57,11 +101,7 @@ export default function App() {
     reader.onload = e => {
       try {
         const d = JSON.parse(e.target.result)
-        // migrate old single-categoryId format
-        const txs = (d.txs || []).map(t =>
-          t.categoryIds ? t : { ...t, categoryIds: t.categoryId ? [t.categoryId] : [] }
-        )
-        setTxs(txs)
+        setTxs(migrateTxs(d.txs))
         setCats(d.cats || [])
         setFileName(d.fileName || '')
         setTab('inbox')
@@ -113,6 +153,7 @@ export default function App() {
       <NavBar
         title={tab === 'inbox' ? 'Postfach' : 'Dashboard'}
         subtitle={tab === 'inbox' ? fileName : undefined}
+        leftAction={{ label: '← Neue Datei', onPress: handleReset }}
         action={{ label: 'Kategorien', onPress: () => setMgr(true) }}
       />
 

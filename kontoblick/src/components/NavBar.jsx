@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import styles from './NavBar.module.css';
 
-export default function NavBar({ title, subtitle, action }) {
+export default function NavBar({ title, subtitle, action, leftAction }) {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -13,7 +13,11 @@ export default function NavBar({ title, subtitle, action }) {
   return (
     <div className={`${styles.nav} ${scrolled ? styles.scrolled : ''}`}>
       <div className={styles.inner}>
-        <div className={styles.smallTitle}>{title}</div>
+        {leftAction
+          ? <button className={styles.leftAction} onClick={leftAction.onPress}>{leftAction.label}</button>
+          : <div className={styles.smallTitle}>{title}</div>
+        }
+        {leftAction && <div className={styles.smallTitle}>{title}</div>}
         {action && (
           <button className={styles.action} onClick={action.onPress}>
             {action.label}
